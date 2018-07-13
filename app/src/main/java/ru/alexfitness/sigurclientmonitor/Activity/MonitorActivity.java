@@ -8,12 +8,14 @@ import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.speech.tts.TextToSpeech;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -25,7 +27,7 @@ import ru.alexfitness.sigurclientmonitor.util.MessageBuilder;
 import ru.alexfitness.sigurclientmonitor.util.SyncTask;
 import ru.alexfitness.sigurclientmonitor.util.SyncTaskListener;
 
-public class MonitorActivity extends Activity implements SigurClientConnectionHandler, SyncTaskListener {
+public class MonitorActivity extends Activity implements SigurClientConnectionHandler, SyncTaskListener, TextToSpeech.OnInitListener {
 
     private TextView messageTextView;
     private ProgressBar progressBar;
@@ -33,6 +35,7 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
     private SharedPreferences preferences;
     private MessageBuilder messageBuilder;
     private int messageDelayTime;
+    private TextToSpeech textToSpeech;
 
     SigurClientConnectionTask clientConnectionTask;
     SyncTask syncTask;
@@ -60,6 +63,17 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
         startMonitoring();
     }
 
+    @Override
+    public void onInit(int status) {
+        if(status == TextToSpeech.SUCCESS){
+            int res = textToSpeech.setLanguage(new Locale("ru"));
+            if(res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED){
+                textToSpeech = null;
+                Toast.makeText(this, "Cant create textspeach", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
     private class UpdateMessageTask extends TimerTask {
 
         @Override
@@ -77,6 +91,8 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
+
+        textToSpeech = new TextToSpeech(this, this);
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -128,6 +144,15 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        if (textToSpeech != null) {
+            textToSpeech.stop();
+            textToSpeech.shutdown();
+        }
+        super.onDestroy();
+    }
+
     private boolean syncDone(){
         return syncTask!=null && syncTask.getStatus()!= AsyncTask.Status.FINISHED;
     }
@@ -142,6 +167,11 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
          String messageText = messageBuilder.buildSigurEventMessage(event);
         if (messageText != null) {
             messageTextView.setText(messageText);
+            if(textToSpeech!=null){
+                Bundle speakParam = new Bundle();
+                speakParam.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1);
+                textToSpeech.speak(messageText, TextToSpeech.QUEUE_FLUSH, speakParam, null);
+            }
         }
     }
 

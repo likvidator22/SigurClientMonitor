@@ -12,6 +12,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Properties;
 
 import ru.alexfitness.sigurclientmonitor.Db.SigurDbHelper;
 
@@ -52,7 +53,11 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
             stringBuilder.append(preferences.getString("db_name_pref", ""));
 
             DriverManager.setLoginTimeout(60);
-            Connection mysqlconnection = DriverManager.getConnection(stringBuilder.toString(), "root", "");
+            Properties connectionProperties = new Properties();
+            connectionProperties.put("connectTimeout", "10000");
+            connectionProperties.put("user", "root");
+            connectionProperties.put("password", "");
+            Connection mysqlconnection = DriverManager.getConnection(stringBuilder.toString(), connectionProperties);
             Statement stmt = mysqlconnection.createStatement();
             ResultSet rs;
             int syncSize;
@@ -103,7 +108,7 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
             db.close();
 
             return true;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
