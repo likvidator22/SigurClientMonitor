@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:layout_height="match_parent" android:layout_width="match_parent">
+    <EditText
+        android:id="@+id/messageEditText"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_weight="2"
+        android:backgroundTint="@android:color/transparent"
+        android:ems="10"
+        android:gravity="center"
+        android:hint="@string/message_edit_dialog_title"
+        android:imeOptions="actionDone"
+        android:inputType="textMultiLine" />
+    <Button
+        android:id="@+id/saveMessageButton"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:background="@android:color/darker_gray"
+        android:onClick="saveMessage"
+        android:text="@android:string/ok"
+        android:textStyle="bold" />
+</LinearLayout>

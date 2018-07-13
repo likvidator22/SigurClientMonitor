@@ -1,0 +1,52 @@
+<resources>
+    <string-array name="main_activity_navigation_list">
+        <item>Settings</item>
+        <item>Monitor</item>
+        <item>Message settings</item>
+        <item>Remove all settings</item>
+    </string-array>
+    <string-array name="direction_entries_list">
+        <item>Entrance</item>
+        <item>Exit</item>
+        <item>All</item>
+    </string-array>
+
+    <string name="remove_settings_message">Remove all settings?</string>
+    <string name="remove_settings_result_ok">All settings removed</string>
+
+    <string name="app_name" translatable="false">Sigur access control system monitor</string>
+
+    <string name="port_pref_title">Port</string>
+    <string name="host_pref_title">Host</string>
+    <string name="version_pref_title">Version</string>
+    <string name="login_pref_title">Login</string>
+    <string name="pwd_pref_title">Password</string>
+    <string name="controller_pref_title">Controller (id divided by \";\")</string>
+    <string name="direction_pref_title">Direction</string>
+    <string name="connection_timeout_pref_title">Connection timeout (ms)</string>
+    <string name="reconnect_attempts_pref_title">Attempts to reconnect (0 for infinity)</string>
+    <string name="db_name_pref_title">Database name</string>
+    <string name="message_delay_pref_title">Message delay</string>
+
+    <string name="connection_category_pref_title">Connection</string>
+
+    <string name="no_internet_text">No internet connection</string>
+    <string name="server_down_text">Server is down. Try later</string>
+    <string name="waiting_text">Waiting…</string>
+    <string name="connecting_text">Connecting…</string>
+
+    <string name="greeting_text">Welcome</string>
+    <string name="recognition_problem_text">Face not recognized.\n\nPlease, look at the camera after entering your pin code.</string>
+    <string name="wrong_code_problem_text">Wrong code.\n\nTry again or contact the sales department.</string>
+    <string name="expired_problem_text">Subscription expired.\n\nPlease, contact the sales department</string>
+    <string name="time_limit_problem_text">You have no access at this time.\n\nPlease, contact the sales department</string>
+
+    <string name="message_edit_dialog_title">Enter message text</string>
+    <string name="save_message_button">Save</string>
+    <string name="waiting_message_title">Waiting message</string>
+
+    <string name="waiting_message_pref">waiting_message_pref</string>
+    <string name="sync_in_progress_text">Sync in progress</string>
+    <string name="sync_failed_text">Sync failed</string>
+    <string name="connection_category_pref_summary">connection setting: host, port etc...</string>
+</resources>

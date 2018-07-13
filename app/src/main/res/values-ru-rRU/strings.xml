@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="main_activity_navigation_list">
+        <item>Настройки</item>
+        <item>Монитор</item>
+        <item>Настройки сообщений</item>
+        <item>Сбросить все настройки</item>
+    </string-array>
+    <string-array name="direction_entries_list">
+        <item>Вход</item>
+        <item>Выход</item>
+        <item>Все направления</item>
+    </string-array>
+
+    <string name="remove_settings_message">Сбросить все настройки?</string>
+    <string name="remove_settings_result_ok">Все настройки удалены</string>
+
+    <string name="app_name" translatable="false">Монитор системы контроля доступа Sigur</string>
+
+    <string name="port_pref_title">Порт</string>
+    <string name="host_pref_title">Сервер</string>
+    <string name="version_pref_title">Версия</string>
+    <string name="login_pref_title">Логин</string>
+    <string name="pwd_pref_title">Пароль</string>
+    <string name="controller_pref_title">Контроллеры (id разделенные \";\")</string>
+    <string name="direction_pref_title">Направление</string>
+    <string name="connection_timeout_pref_title">Таймаут при подключении (мс)</string>
+    <string name="reconnect_attempts_pref_title">Попыток на переподключение (0 для бесконечности)</string>
+    <string name="db_name_pref_title">Имя базы данных</string>
+    <string name="message_delay_pref_title">Длительность показа сообщения</string>
+
+    <string name="connection_category_pref_title">Подключение</string>
+
+    <string name="no_internet_text">Нет подключения к сети интернет</string>
+    <string name="server_down_text">Сервер не отвечает. Попробуйте позднее.</string>
+    <string name="waiting_text">1. Введите персональный код из СМС \n\n2. Нажмите #\n\n3. Посмотрите в камеру!</string>
+    <string name="connecting_text">Идет подключение...</string>
+
+    <string name="greeting_text">Добро пожаловать [name]!</string>
+    <string name="recognition_problem_text">Лицо не опознано.\n\nПожалуйста, посмотрите в камеру после ввода пин кода.</string>
+    <string name="wrong_code_problem_text">Неверный пин код.\n\nПопробуйте еще раз или обратитесь в отдел продаж.</string>
+    <string name="expired_problem_text">Срок действия абонемента истек.\n\nПожалуйста, обратитесь в отдел продаж.</string>
+    <string name="time_limit_problem_text">У Вас нет допуска в это время.\n\nПожалуйста, обратитесь в отдел продаж.</string>
+
+    <string name="message_edit_dialog_title">Введите текст сообщения</string>
+    <string name="save_message_button">Сохранить</string>
+    <string name="waiting_message_title">Приветствие</string>
+    <string name="sync_in_progress_text">Идет синхронизация...</string>
+    <string name="sync_failed_text">Не удалось синхронизировать данные</string>
+    <string name="connection_category_pref_summary">настройки подключения: адрес сервер, порт и т.д.</string>
+</resources>
