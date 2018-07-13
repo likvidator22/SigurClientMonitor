@@ -18,25 +18,6 @@ public class SigurMonitorApplication extends Application {
     }
 
     private void setDefaultMessages(){
-//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-//        SigurEventType[] types = SigurEventType.values();
-//
-//        for(SigurEventType type:types){
-//            if(!sharedPreferences.contains(type.name())){
-//                String defaultMessage = DefaultMessagesManager.getDefaultSigurEventMessageText(this, type);
-//                if(defaultMessage!=null){
-//                    SharedPreferences.Editor editor = sharedPreferences.edit();
-//                    editor.putString(type.name(),defaultMessage);
-//                    editor.commit();
-//                }
-//            }
-//        }
-//
-//        if(!sharedPreferences.contains(getString(R.string.waiting_message_pref))){
-//            SharedPreferences.Editor editor = sharedPreferences.edit();
-//            editor.putString(getString(R.string.waiting_message_pref), getString(R.string.waiting_text));
-//            editor.commit();
-//        }
         DefaultMessagesManager.setDefaultMessages(this);
     }
 }

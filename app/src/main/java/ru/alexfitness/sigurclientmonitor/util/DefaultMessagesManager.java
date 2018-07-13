@@ -41,20 +41,19 @@ public class DefaultMessagesManager {
     public static final void setDefaultMessages(Context context){
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SigurEventType[] types = SigurEventType.values();
-
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         for(SigurEventType type:types){
             if(!sharedPreferences.contains(type.name())){
                 String defaultMessage = getDefaultSigurEventMessageText(context, type);
                 if(defaultMessage!=null){
-                    SharedPreferences.Editor editor = sharedPreferences.edit();
                     editor.putString(type.name(),defaultMessage);
                     editor.commit();
                 }
             }
         }
-
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putString(context.getString(R.string.waiting_message_pref), context.getString(R.string.waiting_text));
-        editor.commit();
+        if(!sharedPreferences.contains(context.getString(R.string.waiting_message_pref))) {
+            editor.putString(context.getString(R.string.waiting_message_pref), context.getString(R.string.waiting_text));
+            editor.commit();
+        }
     }
 }

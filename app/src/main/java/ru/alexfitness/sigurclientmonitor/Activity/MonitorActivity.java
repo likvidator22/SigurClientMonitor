@@ -5,9 +5,11 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -76,6 +78,8 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
 
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         messageBuilder = new MessageBuilder(this);
 
         messageTextView = findViewById(R.id.messageTextView);
@@ -84,20 +88,26 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
 
         preferences = PreferenceManager.getDefaultSharedPreferences(MonitorActivity.this);
         messageDelayTime = Integer.parseInt(preferences.getString("message_delay_pref","3000"));
+    }
 
-        syncTask = new SyncTask(preferences, this);
-        syncTask.setListener(this);
+    @Override
+    protected void onStart() {
+        super.onStart();
+        if(clientConnectionTask==null) {
+            syncTask = new SyncTask(preferences, this);
+            syncTask.setListener(this);
+            ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
-        ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
-
-        NetworkInfo networkInfo = conMgr.getActiveNetworkInfo();
-        if (networkInfo != null && networkInfo.isConnected()) {
-            messageTextView.setText(R.string.sync_in_progress_text);
-            syncTask.execute();
+            NetworkInfo networkInfo = conMgr.getActiveNetworkInfo();
+            if (networkInfo != null && networkInfo.isConnected()) {
+                messageTextView.setText(R.string.sync_in_progress_text);
+                syncTask.execute();
+            } else {
+                messageTextView.setText(getString(R.string.no_internet_text));
+            }
         } else {
-            messageTextView.setText(getString(R.string.no_internet_text));
+            startMonitoring();
         }
-
     }
 
     public void startMonitoring() {
@@ -107,14 +117,19 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
     }
 
     @Override
-    protected void onPause() {
-        super.onPause();
-        if(syncTask!=null) {
+    protected void onStop() {
+        super.onStop();
+        if(!syncDone()) {
             syncTask.cancel(true);
         }
         if(clientConnectionTask!=null){
             clientConnectionTask.cancel(true);
+            clientConnectionTask.setHandler(null);
         }
+    }
+
+    private boolean syncDone(){
+        return syncTask!=null && syncTask.getStatus()!= AsyncTask.Status.FINISHED;
     }
 
     @Override
