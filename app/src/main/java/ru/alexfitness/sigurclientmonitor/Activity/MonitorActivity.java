@@ -124,16 +124,10 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
     }
 
     private void setMessageTextForEvent(SigurEvent event) {
-        //if(event.getEventType()!=null) {
-//            String messageText = preferences.getString(event.getEventType().name(), null);
-//            if (messageText != null) {
-//                messageTextView.setText(messageText);
-//            }
-        String messageText = messageBuilder.buildSigurEventMessage(event);
+         String messageText = messageBuilder.buildSigurEventMessage(event);
         if (messageText != null) {
             messageTextView.setText(messageText);
         }
-        //}
     }
 
     private void updateTimer() {
