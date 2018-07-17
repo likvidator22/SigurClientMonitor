@@ -10,7 +10,6 @@ import android.os.AsyncTask;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
@@ -133,10 +132,6 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
         if(listener!=null){
             listener.handleProgress(values[0]);
         }
-    }
-
-    public SyncTaskListener getListener() {
-        return listener;
     }
 
     public void setListener(SyncTaskListener listener) {

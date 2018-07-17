@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -31,6 +30,11 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
     private int direction;
     private int connectionTimeout;
     private int reconnectAttempts;
+
+    public SigurClientConnectionTask(SharedPreferences prop){
+        super();
+        setProperties(prop);
+    }
 
     @Override
     protected void onPreExecute() {
@@ -62,8 +66,6 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
                 response = reader.readLine();
             } catch (Exception e) {
                 response = null;
-                //logError(e.getMessage());
-                //maybe we lost connection?
                 if(isCancelled()){
                     break;
                 }
@@ -73,15 +75,7 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
                     continue;
                 }
             }
-//            catch (IOException e) {
-//                //logError(e.getMessage());
-//                freeResources();
-//                isRunning.set(false);
-//                continue;
-//            }
-
             if (response != null) {
-                //logInfo(String.format("Sigur: %s", response));
                 publishProgress(response);
             }
         }
@@ -104,19 +98,14 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         handler.handleClientShutDown();
     }
 
+
     public boolean checkHandlePreferences(SigurEvent event){
         boolean result;
         result = controllers.contains(event.getSenderID()) & (direction==0 || event.getDirection()==direction);
         return result;
     }
 
-    public SigurClientConnectionTask(SharedPreferences prop){
-        super();
-        setProperties(prop);
-    }
-
     private boolean initResources() {
-        logInfo("int resources");
         try {
             String serverAddress = properties.getString("host_pref","");
             int serverPort = Integer.parseInt((properties.getString("port_pref","")));
@@ -124,7 +113,6 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
             socket.setSoTimeout(30*1000);
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            logInfo("monitor started");
         } catch (Exception e) {
             logError(e.getMessage());
             return false;
@@ -153,7 +141,6 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
     }
 
     private boolean loginToServer() {
-        logInfo("try to login");
         String loginCommand = SigurTextProtocol.getSigurLoginCommand(properties.getString("version_pref",""), properties.getString("login_pref",""), properties.getString("pwd_pref", ""));
         writer.println(loginCommand);
         writer.flush();
@@ -197,7 +184,6 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
             try {
                 logInfo(String.format("Check reachable: %d", attempts));
                 connectionState = !socket.getInetAddress().isReachable(connectionTimeout);
-                //logInfo("Result: " + result + "\n" + "State: " + connectionState);
                 if (!connectionState | !result) {
                     logInfo("Connection lost");
                     freeResources();
@@ -231,28 +217,12 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         return socket;
     }
 
-    public void setSocket(Socket socket) {
-        this.socket = socket;
-    }
-
     public PrintWriter getWriter() {
         return writer;
     }
 
-    public void setWriter(PrintWriter writer) {
-        this.writer = writer;
-    }
-
     public BufferedReader getReader() {
         return reader;
-    }
-
-    public void setReader(BufferedReader reader) {
-        this.reader = reader;
-    }
-
-    public SigurClientConnectionHandler getHandler() {
-        return handler;
     }
 
     public void setHandler(SigurClientConnectionHandler handler) {

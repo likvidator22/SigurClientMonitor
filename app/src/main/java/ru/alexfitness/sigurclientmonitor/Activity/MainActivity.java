@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
-
 import ru.alexfitness.sigurclientmonitor.R;
 
 public class MainActivity extends Activity {
@@ -21,7 +20,7 @@ public class MainActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ListView navListView = (ListView) findViewById(R.id.mainNavigationListView);
+        ListView navListView = findViewById(R.id.mainNavigationListView);
         navListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -44,6 +43,7 @@ public class MainActivity extends Activity {
                                 startActivityForResult(new Intent(MainActivity.this, RemoveSettingsActivity.class), REMOVE_SETTINGS_REQUEST_CODE);
                             }
                         });
+                        builder.setNegativeButton(android.R.string.cancel, null);
                         builder.create().show();
                         break;
                 }

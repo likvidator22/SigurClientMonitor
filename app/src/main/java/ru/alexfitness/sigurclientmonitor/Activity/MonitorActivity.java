@@ -40,40 +40,6 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
     SigurClientConnectionTask clientConnectionTask;
     SyncTask syncTask;
 
-    @Override
-    public void handleProgress(int percent) {
-        progressBar.setProgress(percent);
-    }
-
-    @Override
-    public void onSyncStart() {
-        progressBar.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onSyncFailed() {
-        progressBar.setVisibility(View.INVISIBLE);
-        messageTextView.setText(R.string.sync_failed_text);
-        Toast.makeText(this, getString(R.string.sync_failed_text), Toast.LENGTH_LONG).show();
-    }
-
-    @Override
-    public void onFinishAction() {
-        progressBar.setVisibility(View.INVISIBLE);
-        startMonitoring();
-    }
-
-    @Override
-    public void onInit(int status) {
-        if(status == TextToSpeech.SUCCESS){
-            int res = textToSpeech.setLanguage(new Locale("ru"));
-            if(res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED){
-                textToSpeech = null;
-                Toast.makeText(this, "Cant create textspeach", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
     private class UpdateMessageTask extends TimerTask {
 
         @Override
@@ -128,12 +94,6 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
         }
     }
 
-    public void startMonitoring() {
-        clientConnectionTask = new SigurClientConnectionTask(preferences);
-        clientConnectionTask.setHandler(this);
-        clientConnectionTask.execute();
-    }
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -155,34 +115,39 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
         super.onDestroy();
     }
 
-    private boolean syncDone(){
-        return syncTask!=null && syncTask.getStatus()!= AsyncTask.Status.FINISHED;
+    //
+    //SyncTaskListener
+
+    @Override
+    public void handleProgress(int percent) {
+        progressBar.setProgress(percent);
     }
+
+    @Override
+    public void onSyncStart() {
+        progressBar.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onSyncFailed() {
+        progressBar.setVisibility(View.INVISIBLE);
+        messageTextView.setText(R.string.sync_failed_text);
+        Toast.makeText(this, getString(R.string.sync_failed_text), Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void onFinishAction() {
+        progressBar.setVisibility(View.INVISIBLE);
+        startMonitoring();
+    }
+
+    //
+    //SigurClientConnectionHandler
 
     @Override
     public void handleNewEvent(SigurEvent sigurEvent) {
         setMessageTextForEvent(sigurEvent);
         updateTimer();
-    }
-
-    private void setMessageTextForEvent(SigurEvent event) {
-         String messageText = messageBuilder.buildSigurEventMessage(event);
-        if (messageText != null) {
-            messageTextView.setText(messageText);
-            if(textToSpeech!=null){
-                Bundle speakParam = new Bundle();
-                speakParam.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1);
-                textToSpeech.speak(messageText, TextToSpeech.QUEUE_FLUSH, speakParam, null);
-            }
-        }
-    }
-
-    private void updateTimer() {
-        if (timer != null) {
-            timer.cancel();
-        }
-        timer = new Timer();
-        timer.schedule(new UpdateMessageTask(), messageDelayTime);
     }
 
     @Override
@@ -194,5 +159,52 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
     public void handleClientStartUp() {
         updateTimer();
         messageTextView.setText(getString(R.string.connecting_text));
+    }
+
+    //
+    //TextToSpeech.OnInitListener
+
+    @Override
+    public void onInit(int status) {
+        if(status == TextToSpeech.SUCCESS){
+            int res = textToSpeech.setLanguage(new Locale("ru"));
+            if(res == TextToSpeech.LANG_MISSING_DATA || res == TextToSpeech.LANG_NOT_SUPPORTED){
+                textToSpeech = null;
+                Toast.makeText(this, "Cant create textspeach", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
+    //
+    //service
+
+    public void startMonitoring() {
+        clientConnectionTask = new SigurClientConnectionTask(preferences);
+        clientConnectionTask.setHandler(this);
+        clientConnectionTask.execute();
+    }
+
+    private void setMessageTextForEvent(SigurEvent event) {
+        String messageText = messageBuilder.buildSigurEventMessage(event);
+        if (messageText != null) {
+            messageTextView.setText(messageText);
+            if(textToSpeech!=null){
+                Bundle speakParam = new Bundle();
+                speakParam.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1);
+                textToSpeech.speak(messageText, TextToSpeech.QUEUE_FLUSH, speakParam, null);
+            }
+        }
+    }
+
+    private boolean syncDone(){
+        return syncTask!=null && syncTask.getStatus()!= AsyncTask.Status.FINISHED;
+    }
+
+    private void updateTimer() {
+        if (timer != null) {
+            timer.cancel();
+        }
+        timer = new Timer();
+        timer.schedule(new UpdateMessageTask(), messageDelayTime);
     }
 }

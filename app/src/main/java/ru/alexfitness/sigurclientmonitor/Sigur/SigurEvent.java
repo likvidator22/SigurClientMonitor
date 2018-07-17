@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -23,14 +24,14 @@ public class SigurEvent {
         this.presentation = eventString;
 
         String[] stringSplit = eventString.split(" ");
+
         SimpleDateFormat dateFormat = new SimpleDateFormat("\"yyyy-MM-dd HH:mm:ss\"", Locale.ENGLISH);
         try {
             StringBuilder sb = new StringBuilder();
             sb.append(stringSplit[1]).append(" ").append(stringSplit[2]);
             setDate(dateFormat.parse(sb.toString()));
         } catch (ParseException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            //
         }
 
         String eventTypeString = stringSplit[3];
@@ -90,11 +91,6 @@ public class SigurEvent {
         this.eventType = eventType;
     }
 
-    @Override
-    public String toString() {
-        return this.presentation;
-    }
-
     public String getSenderID() {
         return senderID;
     }
@@ -110,4 +106,10 @@ public class SigurEvent {
     public void setObjectID(int objectID) {
         this.objectID = objectID;
     }
+
+    @Override
+    public String toString() {
+        return this.presentation;
+    }
+
 }

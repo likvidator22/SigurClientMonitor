@@ -1,8 +1,6 @@
 package ru.alexfitness.sigurclientmonitor.Sigur;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public enum SigurEventType implements Serializable{
     SUCCESS_ENTER("24", "Доступ разрешен"),
@@ -26,22 +24,7 @@ public enum SigurEventType implements Serializable{
                 return sigurEventType;
             }
         }
-        return null;    }
-
-    public static final ArrayList<String> getDescriptions(){
-        ArrayList<String> result = new ArrayList<String>();
-        for(SigurEventType sigurEventType:values()){
-            result.add(sigurEventType.description);
-        }
-        return result;
-    }
-
-    public static final HashMap<SigurEventType, String> getEventTypeDescriptionsMap(){
-        HashMap<SigurEventType, String> result = new HashMap<>();
-        for(SigurEventType sigurEventType:values()){
-            result.put(sigurEventType, sigurEventType.description);
-        }
-        return result;
+        return null;
     }
 
     @Override

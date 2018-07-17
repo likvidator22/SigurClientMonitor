@@ -9,12 +9,8 @@ import ru.alexfitness.sigurclientmonitor.Sigur.SigurEventType;
 
 public class DefaultMessagesManager {
 
-    private DefaultMessagesManager(){
-
-    }
-
     public static String getDefaultSigurEventMessageText(Context context, SigurEventType eventType){
-        String result = null;
+        String result;
         switch (eventType){
             case SUCCESS_ENTER:
                 result = context.getString(R.string.greeting_text);
@@ -39,6 +35,7 @@ public class DefaultMessagesManager {
     }
 
     public static final void setDefaultMessages(Context context){
+
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SigurEventType[] types = SigurEventType.values();
         SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -51,9 +48,11 @@ public class DefaultMessagesManager {
                 }
             }
         }
+
         if(!sharedPreferences.contains(context.getString(R.string.waiting_message_pref))) {
             editor.putString(context.getString(R.string.waiting_message_pref), context.getString(R.string.waiting_text));
             editor.commit();
         }
+
     }
 }

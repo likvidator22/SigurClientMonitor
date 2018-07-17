@@ -20,4 +20,5 @@ public class SigurMonitorApplication extends Application {
     private void setDefaultMessages(){
         DefaultMessagesManager.setDefaultMessages(this);
     }
+
 }

@@ -7,4 +7,5 @@ public interface SigurClientConnectionHandler {
     public void handleNewEvent(SigurEvent sigurEvent);
     public void handleClientShutDown();
     public void handleClientStartUp();
+
 }
