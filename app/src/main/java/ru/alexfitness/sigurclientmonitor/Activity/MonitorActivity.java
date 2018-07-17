@@ -92,17 +92,19 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_monitor);
 
-        textToSpeech = new TextToSpeech(this, this);
+        preferences = PreferenceManager.getDefaultSharedPreferences(MonitorActivity.this);
+
+        if(preferences.getBoolean("enable_voice_pref", false)){
+            textToSpeech = new TextToSpeech(this, this);
+        }
 
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         messageBuilder = new MessageBuilder(this);
-
         messageTextView = findViewById(R.id.messageTextView);
         progressBar = findViewById(R.id.monitorProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
-        preferences = PreferenceManager.getDefaultSharedPreferences(MonitorActivity.this);
         messageDelayTime = Integer.parseInt(preferences.getString("message_delay_pref","3000"));
     }
 

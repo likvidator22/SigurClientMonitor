@@ -49,6 +49,7 @@
             android:singleLine="true"
             android:title="@string/db_name_pref_title"></EditTextPreference>
 
+
     </PreferenceScreen>
 
     <EditTextPreference
@@ -69,5 +70,10 @@
         android:singleLine="true"
         android:defaultValue="3000"
         android:title="@string/message_delay_pref_title"/>
+
+    <CheckBoxPreference
+        android:key="enable_voice_pref"
+        android:defaultValue="false"
+        android:title="@string/enable_voice_pref_title"></CheckBoxPreference>
 
 </PreferenceScreen>

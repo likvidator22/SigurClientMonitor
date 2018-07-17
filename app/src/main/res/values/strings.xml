@@ -27,6 +27,7 @@
     <string name="reconnect_attempts_pref_title">Attempts to reconnect (0 for infinity)</string>
     <string name="db_name_pref_title">Database name</string>
     <string name="message_delay_pref_title">Message delay</string>
+    <string name="enable_voice_pref_title">Enable voice</string>
 
     <string name="connection_category_pref_title">Connection</string>
 
@@ -49,4 +50,5 @@
     <string name="sync_in_progress_text">Sync in progress</string>
     <string name="sync_failed_text">Sync failed</string>
     <string name="connection_category_pref_summary">connection setting: host, port etc...</string>
+
 </resources>

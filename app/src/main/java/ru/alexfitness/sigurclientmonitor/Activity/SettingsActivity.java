@@ -37,6 +37,8 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
             switch (key) {
                 case "direction_pref":
                     break;
+                case "enable_voice_pref":
+                    break;
                 default:
                     preference.setSummary(sharedPreferences.getString(key, ""));
                     break;
@@ -44,3 +46,4 @@ public class SettingsActivity extends PreferenceActivity implements SharedPrefer
         }
     }
 }
+
