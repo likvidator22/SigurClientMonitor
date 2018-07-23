@@ -1,10 +1,7 @@
 package ru.alexfitness.sigurclientmonitor.Sigur;
 
-import android.support.annotation.NonNull;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -19,7 +16,7 @@ public class SigurEvent {
     private String key;
     private String presentation;
 
-    public SigurEvent(@NonNull String eventString) {
+    public SigurEvent(String eventString) {
 
         this.presentation = eventString;
 
