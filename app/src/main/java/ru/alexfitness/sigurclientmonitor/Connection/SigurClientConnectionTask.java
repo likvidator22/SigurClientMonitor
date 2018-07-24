@@ -176,14 +176,17 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         boolean result = false;
         boolean connectionState;
         try {
-            result = socket.getInetAddress().isReachable(1000);
+            InetAddress inetAddress = socket.getInetAddress();
+            result = inetAddress!=null && inetAddress.isReachable(1000);
         } catch (IOException e) {
             result = false;
         }
         while (attempts > 0 || reconnectAttempts==0) {
             try {
                 logInfo(String.format("Check reachable: %d", attempts));
-                connectionState = socket.getInetAddress().isReachable(connectionTimeout);
+                InetAddress inetAddress = socket.getInetAddress();
+
+                connectionState = inetAddress!=null && inetAddress.isReachable(connectionTimeout);
                 if (!connectionState | !result) {
                     logInfo("Connection lost");
                     freeResources();
@@ -192,6 +195,8 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
                     logInfo("Server is reachable");
                     break;
                 }
+
+
             } catch (IOException e) {
                 logError(e.getMessage());
                 result = false;
@@ -206,11 +211,18 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
     }
 
     public void logInfo(String logString){
+        if(logString == null){
+            logString = "";
+        }
         Log.i("Connection",logString);
     }
 
     public void logError(String logString){
+        if(logString == null){
+            logString = "";
+        }
         Log.e("Connection", logString);
+
     }
 
     public Socket getSocket() {
