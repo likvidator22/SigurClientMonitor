@@ -4,8 +4,9 @@ import ru.alexfitness.sigurclientmonitor.Sigur.SigurEvent;
 
 public interface SigurClientConnectionHandler {
 
-    public void handleNewEvent(SigurEvent sigurEvent);
-    public void handleClientShutDown();
-    public void handleClientStartUp();
+    void handleNewEvent(SigurEvent sigurEvent);
+    void handleClientShutDown();
+    void handleClientStartUp();
+    void handleConnectionProblem();
 
 }

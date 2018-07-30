@@ -49,4 +49,5 @@
     <string name="sync_failed_text">Не удалось синхронизировать данные</string>
     <string name="connection_category_pref_summary">настройки подключения: адрес сервер, порт и т.д.</string>
     <string name="enable_voice_pref_title">Озвучить сообщения</string>
+    <string name="connecting_toast">Подключение...</string>
 </resources>

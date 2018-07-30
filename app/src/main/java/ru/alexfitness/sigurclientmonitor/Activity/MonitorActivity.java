@@ -152,6 +152,9 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
 
     @Override
     public void handleClientShutDown() {
+        timer.cancel();
+        timer.purge();
+
         messageTextView.setText(getString(R.string.server_down_text));
     }
 
@@ -159,6 +162,12 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
     public void handleClientStartUp() {
         updateTimer();
         messageTextView.setText(getString(R.string.connecting_text));
+        Toast.makeText(this, R.string.connecting_toast, Toast.LENGTH_LONG).show();
+    }
+
+    @Override
+    public void handleConnectionProblem() {
+        Toast.makeText(this, R.string.connecting_toast, Toast.LENGTH_LONG).show();
     }
 
     //

@@ -10,6 +10,7 @@ import android.os.AsyncTask;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Properties;
 
@@ -42,9 +43,15 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
             e.printStackTrace();
         }
 
+        SQLiteDatabase db = null;
+        Connection mysqlconnection = null;
+        Statement stmt = null;
+        ResultSet rs = null;
+        Cursor cursor = null;
+
         try {
             SigurDbHelper dbHelper = new SigurDbHelper(context);
-            SQLiteDatabase db = dbHelper.getReadableDatabase();
+            db = dbHelper.getReadableDatabase();
 
             StringBuilder stringBuilder = new StringBuilder();
             stringBuilder.append("jdbc:mysql://");
@@ -56,9 +63,9 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
             connectionProperties.put("connectTimeout", "10000");
             connectionProperties.put("user", "root");
             connectionProperties.put("password", "");
-            Connection mysqlconnection = DriverManager.getConnection(stringBuilder.toString(), connectionProperties);
-            Statement stmt = mysqlconnection.createStatement();
-            ResultSet rs;
+            mysqlconnection = DriverManager.getConnection(stringBuilder.toString(), connectionProperties);
+            stmt = mysqlconnection.createStatement();
+
             int syncSize;
             int syncProgress = 0;
 
@@ -69,7 +76,6 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
 
             String name;
             int object_id;
-            Cursor cursor= null;
 
             rs = stmt.executeQuery("SELECT id, name FROM personal");
 
@@ -97,18 +103,37 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
                 syncProgress++;
                 publishProgress((syncProgress  * 100)/syncSize);
             }
-
-            if(cursor!=null){
-                cursor.close();
-            }
-            rs.close();
-            stmt.close();
-            mysqlconnection.close();
-            db.close();
-
             return true;
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if(cursor!=null){
+                cursor.close();
+            }
+            if(rs!=null) {
+                try {
+                    rs.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(stmt!=null){
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(mysqlconnection!=null){
+                try {
+                    mysqlconnection.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+            if(db!=null) {
+                db.close();
+            }
         }
 
         return false;
