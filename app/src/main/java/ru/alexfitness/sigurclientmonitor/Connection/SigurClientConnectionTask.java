@@ -12,6 +12,8 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -70,10 +72,21 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         while (isRunning.get()) {
             try {
                 response = reader.readLine();
+            } catch (SocketTimeoutException ste) {
+                logError(ste.toString());
+                response = null;
+            } catch (SocketException se){
+                //
+                logError(se.toString());
+                response = null;
+                if (!reconnect()) {
+                    freeResources();
+                    isRunning.set(false);
+                    break;
+                }
             } catch (IOException e) {
                 //
-                logError(e.getMessage());
-                e.printStackTrace();
+                logError(e.toString());
                 response = null;
                 if (!reconnect()) {
                     freeResources();
@@ -119,9 +132,9 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
             String serverAddress = properties.getString("host_pref","");
             int serverPort = Integer.parseInt((properties.getString("port_pref","")));
 
-            if (serverIsReachable(serverAddress, serverPort, connectionTimeout)) {
+            if (serverIsReachable(serverAddress, serverPort, 10)) {
                 socket = new Socket(InetAddress.getByName(serverAddress), serverPort);
-                socket.setSoTimeout(30 * 1000);
+                socket.setSoTimeout(connectionTimeout * 1000);
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                 writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
             } else {
