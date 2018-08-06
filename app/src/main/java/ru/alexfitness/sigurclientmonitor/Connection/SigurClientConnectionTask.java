@@ -121,8 +121,7 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         try {
             String serverAddress = properties.getString("host_pref","");
             int serverPort = Integer.parseInt((properties.getString("port_pref","")));
-            InetAddress inetAddress = InetAddress.getByName(serverAddress);
-            if (inetAddress.isReachable(connectionTimeout * 1000)) {
+            if (serverIsReachable(serverAddress, serverPort)) {
                 socket = new Socket(InetAddress.getByName(serverAddress), serverPort);
                 socket.setSoTimeout(30 * 1000);
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -198,6 +197,21 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
             if(attempts>0){attempts--;}
         }
         return false;
+    }
+
+    private boolean serverIsReachable(String server,int port){
+
+        //return InetAddress.getByName(serverAddress).isReachable(connectionTimeout * 1000);
+
+        try {
+            Socket s = new Socket(InetAddress.getByName(server), port);
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        return true;
     }
 
     public void setProperties(SharedPreferences properties) {
