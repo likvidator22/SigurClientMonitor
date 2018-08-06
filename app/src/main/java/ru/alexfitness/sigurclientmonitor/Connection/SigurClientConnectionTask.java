@@ -20,14 +20,12 @@ import ru.alexfitness.sigurclientmonitor.Sigur.SigurTextProtocol;
 
 public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
 
-    private static final String RECONNECT = "r";
-
     private SharedPreferences properties;
     private Socket socket;
     private PrintWriter writer;
     private BufferedReader reader;
     private SigurClientConnectionHandler handler;
-    private final AtomicBoolean isRunning = new AtomicBoolean(false);
+    private final AtomicBoolean isRunning = new AtomicBoolean(true);
 
     private ArrayList<String> controllers;
     private int direction;
@@ -63,9 +61,6 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         if (!loginToServer()) {
             return null;
         }
-
-        isRunning.set(true);
-
         String response = null;
         while (isRunning.get()) {
             try {
@@ -92,16 +87,12 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
 
     @Override
     protected void onProgressUpdate(String... values) {
-        if(values[0].equals(RECONNECT)){
-            handler.handleConnectionProblem();
-        } else {
-            Log.i("", values[0]);
+        Log.i("", values[0]);
 
-            SigurEvent sigurEvent = new SigurEvent(values[0]);
+        SigurEvent sigurEvent = new SigurEvent(values[0]);
 
-            if (checkHandlePreferences(sigurEvent)) {
-                handler.handleNewEvent(sigurEvent);
-            }
+        if (checkHandlePreferences(sigurEvent)) {
+            handler.handleNewEvent(sigurEvent);
         }
     }
 
@@ -190,14 +181,37 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
 
     private boolean reconnect() {
         int attempts = reconnectAttempts;
+        boolean result = false;
+        boolean connectionState;
+        try {
+            InetAddress inetAddress = socket.getInetAddress();
+            result = inetAddress!=null && inetAddress.isReachable(1000);
+        } catch (IOException e) {
+            result = false;
+        }
         while (attempts > 0 || reconnectAttempts==0) {
-            publishProgress(RECONNECT);
-            if(initResources() & loginToServer()){
-                    return true;
+            try {
+                logInfo(String.format("Check reachable: %d", attempts));
+                InetAddress inetAddress = socket.getInetAddress();
+
+                connectionState = inetAddress!=null && inetAddress.isReachable(connectionTimeout);
+                if (!connectionState | !result) {
+                    logInfo("Connection lost");
+                    freeResources();
+                    result = initResources() & loginToServer();
+                } else {
+                    logInfo("Server is reachable");
+                    break;
+                }
+
+
+            } catch (IOException e) {
+                logError(e.getMessage());
+                result = false;
             }
             if(attempts>0){attempts--;}
         }
-        return false;
+        return result;
     }
 
     public void setProperties(SharedPreferences properties) {
