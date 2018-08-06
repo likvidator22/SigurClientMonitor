@@ -24,7 +24,7 @@
     <string name="pwd_pref_title">Пароль</string>
     <string name="controller_pref_title">Контроллеры (id разделенные \";\")</string>
     <string name="direction_pref_title">Направление</string>
-    <string name="connection_timeout_pref_title">Таймаут при подключении (мс)</string>
+    <string name="connection_timeout_pref_title">Таймаут при подключении (сек)</string>
     <string name="reconnect_attempts_pref_title">Попыток на переподключение (0 для бесконечности)</string>
     <string name="db_name_pref_title">Имя базы данных</string>
     <string name="message_delay_pref_title">Длительность показа сообщения</string>

@@ -10,8 +10,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -70,12 +70,10 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         while (isRunning.get()) {
             try {
                 response = reader.readLine();
-            } catch (SocketTimeoutException stoe){
+            } catch (IOException e) {
                 //
-                response = null;
-            }
-            catch (IOException e) {
-                //
+                logError(e.getMessage());
+                e.printStackTrace();
                 response = null;
                 if (!reconnect()) {
                     freeResources();
@@ -93,12 +91,11 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
     @Override
     protected void onProgressUpdate(String... values) {
         if(values[0].equals(RECONNECT)){
+            logInfo("reconnecting");
             handler.handleConnectionProblem();
         } else {
-            Log.i("", values[0]);
-
+            logInfo(values[0]);
             SigurEvent sigurEvent = new SigurEvent(values[0]);
-
             if (checkHandlePreferences(sigurEvent)) {
                 handler.handleNewEvent(sigurEvent);
             }
@@ -121,7 +118,8 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         try {
             String serverAddress = properties.getString("host_pref","");
             int serverPort = Integer.parseInt((properties.getString("port_pref","")));
-            if (serverIsReachable(serverAddress, serverPort)) {
+
+            if (serverIsReachable(serverAddress, serverPort, connectionTimeout)) {
                 socket = new Socket(InetAddress.getByName(serverAddress), serverPort);
                 socket.setSoTimeout(30 * 1000);
                 reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -166,7 +164,7 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
             if(!SigurTextProtocol.succesResponse(properties.getString("version_pref",""), response)){
                 return false;
             }
-            logInfo(response);
+            //logInfo(response);
         } catch (IOException e) {
             logError(e.getMessage());
             return false;
@@ -179,7 +177,7 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
             if(!SigurTextProtocol.succesResponse(properties.getString("version_pref",""), response)){
                 return false;
             }
-            logInfo(response);
+            //logInfo(response);
         } catch (IOException e) {
             logError(e.getMessage());
             return false;
@@ -199,12 +197,11 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         return false;
     }
 
-    private boolean serverIsReachable(String server,int port){
-
-        //return InetAddress.getByName(serverAddress).isReachable(connectionTimeout * 1000);
+    private boolean serverIsReachable(String server,int port, int connectionTimeout){
 
         try {
-            Socket s = new Socket(InetAddress.getByName(server), port);
+            Socket s = new Socket();
+            s.connect(new InetSocketAddress(server, port), connectionTimeout * 1000);
             s.close();
         } catch (IOException e) {
             e.printStackTrace();
