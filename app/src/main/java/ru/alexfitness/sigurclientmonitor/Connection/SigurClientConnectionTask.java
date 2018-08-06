@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketTimeoutException;
 import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -62,20 +61,18 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
             return null;
         }
         String response = null;
-        while (isRunning.get()) {
+        while (isRunning.get() & !isCancelled()) {
             try {
                 response = reader.readLine();
-            } catch (SocketTimeoutException stoe){
-                //
+            } catch (Exception e) {
                 response = null;
-            }
-            catch (IOException e) {
-                //
-                response = null;
+                if(isCancelled()){
+                    break;
+                }
                 if (!reconnect()) {
                     freeResources();
                     isRunning.set(false);
-                    break;
+                    continue;
                 }
             }
             if (response != null) {
@@ -113,14 +110,11 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
             String serverAddress = properties.getString("host_pref","");
             int serverPort = Integer.parseInt((properties.getString("port_pref","")));
             InetAddress inetAddress = InetAddress.getByName(serverAddress);
-            if (inetAddress.isReachable(connectionTimeout * 1000)) {
-                socket = new Socket(InetAddress.getByName(serverAddress), serverPort);
-                socket.setSoTimeout(30 * 1000);
-                reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
-            } else {
-                return false;
-            }
+            
+            socket = new Socket(InetAddress.getByName(serverAddress), serverPort);
+            socket.setSoTimeout(30*1000);
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            writer = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
         } catch (Exception e) {
             logError(e.getMessage());
             return false;
