@@ -23,7 +23,7 @@
     <string name="pwd_pref_title">Password</string>
     <string name="controller_pref_title">Controller (id divided by \";\")</string>
     <string name="direction_pref_title">Direction</string>
-    <string name="connection_timeout_pref_title">Connection timeout (ms)</string>
+    <string name="connection_timeout_pref_title">Connection timeout (sec)</string>
     <string name="reconnect_attempts_pref_title">Attempts to reconnect (0 for infinity)</string>
     <string name="db_name_pref_title">Database name</string>
     <string name="message_delay_pref_title">Message delay</string>
