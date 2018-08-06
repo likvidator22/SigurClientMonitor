@@ -175,35 +175,22 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
 
     private boolean reconnect() {
         int attempts = reconnectAttempts;
-        boolean result = false;
         boolean connectionState;
-        try {
-            InetAddress inetAddress = socket.getInetAddress();
-            result = inetAddress!=null && inetAddress.isReachable(1000);
-        } catch (IOException e) {
-            result = false;
-        }
-        while (attempts > 0 || reconnectAttempts==0) {
-            try {
-                logInfo(String.format("Check reachable: %d", attempts));
-                InetAddress inetAddress = socket.getInetAddress();
-
-                connectionState = inetAddress!=null && inetAddress.isReachable(connectionTimeout);
-                if (!connectionState | !result) {
-                    logInfo("Connection lost");
-                    freeResources();
-                    result = initResources() & loginToServer();
-                } else {
-                    logInfo("Server is reachable");
-                    break;
-                }
-
-
-            } catch (IOException e) {
-                logError(e.getMessage());
-                result = false;
+        boolean result = serverIsReachable(socket.getInetAddress(), socket.getPort());
+        while (attempts > 0 || reconnectAttempts == 0) {
+            logInfo(String.format("Check reachable: %d", attempts));
+            connectionState = serverIsReachable(socket.getInetAddress(), socket.getPort());
+            if (!connectionState || !result) {
+                logInfo("Connection lost");
+                freeResources();
+                result = initResources() & loginToServer();
+            } else {
+                logInfo("Server is reachable");
+                break;
             }
-            if(attempts>0){attempts--;}
+            if (attempts > 0) {
+                attempts--;
+            }
         }
         return result;
     }
@@ -241,5 +228,19 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
 
     public void setHandler(SigurClientConnectionHandler handler) {
         this.handler = handler;
+    }
+
+    private boolean serverIsReachable(InetAddress inetAddress, int serverPort){
+        if(inetAddress==null){
+            return false;
+        }
+        try {
+            Socket s = new Socket(inetAddress, serverPort);
+            s.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
+        return true;
     }
 }
