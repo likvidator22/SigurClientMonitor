@@ -15,6 +15,7 @@ import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import ru.alexfitness.sigurclientmonitor.Sigur.SigurEvent;
@@ -46,9 +47,7 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         String controllersString = properties.getString("controller_pref", "");
         String[] controllersStringSplit = controllersString.split(";");
         controllers = new ArrayList<>();
-        for(String controllerString:controllersStringSplit){
-            controllers.add(controllerString);
-        }
+        Collections.addAll(controllers, controllersStringSplit);
 
         direction = Integer.parseInt(properties.getString("direction_pref", "0"));
         connectionTimeout = Integer.parseInt(properties.getString("connection_timeout_pref", "0"));
@@ -68,22 +67,22 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
 
         isRunning.set(true);
 
-        String response = null;
+        String response;
         while (isRunning.get()) {
             try {
                 response = reader.readLine();
-            } catch (SocketTimeoutException ste) {
-                logError(ste.toString());
-                response = null;
-            } catch (SocketException se){
-                //
-                logError(se.toString());
-                response = null;
-                if (!reconnect()) {
-                    freeResources();
-                    isRunning.set(false);
-                    break;
-                }
+//            } catch (SocketTimeoutException ste) {
+//                logError(ste.toString());
+//                response = null;
+//            } catch (SocketException se){
+//                //
+//                logError(se.toString());
+//                response = null;
+//                if (!reconnect()) {
+//                    freeResources();
+//                    isRunning.set(false);
+//                    break;
+//                }
             } catch (IOException e) {
                 //
                 logError(e.toString());
@@ -104,7 +103,6 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
     @Override
     protected void onProgressUpdate(String... values) {
         if(values[0].equals(RECONNECT)){
-            logInfo("reconnecting");
             handler.handleConnectionProblem();
         } else {
             logInfo(values[0]);
@@ -121,7 +119,7 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
     }
 
 
-    public boolean checkHandlePreferences(SigurEvent event){
+    private boolean checkHandlePreferences(SigurEvent event){
         boolean result;
         result = controllers.contains(event.getSenderID()) & (direction==0 || event.getDirection()==direction);
         return result;
@@ -224,18 +222,18 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         return true;
     }
 
-    public void setProperties(SharedPreferences properties) {
+    private void setProperties(SharedPreferences properties) {
         this.properties = properties;
     }
 
-    public void logInfo(String logString){
+    private void logInfo(String logString){
         if(logString == null){
             logString = "";
         }
         Log.i("Connection",logString);
     }
 
-    public void logError(String logString){
+    private void logError(String logString){
         if(logString == null){
             logString = "";
         }
@@ -243,15 +241,15 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
 
     }
 
-    public Socket getSocket() {
+    private Socket getSocket() {
         return socket;
     }
 
-    public PrintWriter getWriter() {
+    private PrintWriter getWriter() {
         return writer;
     }
 
-    public BufferedReader getReader() {
+    private BufferedReader getReader() {
         return reader;
     }
 
