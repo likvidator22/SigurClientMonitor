@@ -118,7 +118,6 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         handler.handleClientShutDown();
     }
 
-
     private boolean checkHandlePreferences(SigurEvent event){
         boolean result;
         result = controllers.contains(event.getSenderID()) & (direction==0 || event.getDirection()==direction);
