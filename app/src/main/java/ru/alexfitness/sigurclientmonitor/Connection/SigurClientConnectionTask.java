@@ -71,18 +71,6 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         while (isRunning.get()) {
             try {
                 response = reader.readLine();
-//            } catch (SocketTimeoutException ste) {
-//                logError(ste.toString());
-//                response = null;
-//            } catch (SocketException se){
-//                //
-//                logError(se.toString());
-//                response = null;
-//                if (!reconnect()) {
-//                    freeResources();
-//                    isRunning.set(false);
-//                    break;
-//                }
             } catch (IOException e) {
                 //
                 logError(e.toString());

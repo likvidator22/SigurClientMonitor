@@ -74,18 +74,19 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
             syncSize = rs.getInt(1);
             rs.close();
 
-            String name;
-            int object_id;
+            String name, tabid;
+            int objectid;
 
-            rs = stmt.executeQuery("SELECT id, name FROM personal");
+            rs = stmt.executeQuery("SELECT id, name, TABID FROM personal");
 
             while(rs.next()){
                 if(isCancelled()){
                     return false;
                 }
-                object_id = rs.getInt(1);
+                objectid = rs.getInt(1);
                 name = rs.getString(2);
-                cursor = db.rawQuery("SELECT SIGUR_ID, NAME, SURNAME, FATHERNAME FROM VISITORS WHERE SIGUR_ID = ?", new String[]{String.valueOf(object_id)});
+                tabid = rs.getString(3);
+                cursor = db.rawQuery("SELECT SIGUR_ID, NAME, SURNAME, FATHERNAME, TABID FROM VISITORS WHERE SIGUR_ID = ?", new String[]{String.valueOf(objectid)});
                 if(cursor.moveToNext()){
                     //check name?
                 } else {
@@ -95,7 +96,8 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
                         contentValues.put("NAME", nameSplit[1]);
                         contentValues.put("SURNAME", nameSplit[0]);
                         contentValues.put("FATHERNAME", nameSplit[2]);
-                        contentValues.put("SIGUR_ID", object_id);
+                        contentValues.put("SIGUR_ID", objectid);
+                        contentValues.put("TABID", tabid);
                         db.insert("VISITORS", null, contentValues);
                     }
                 }

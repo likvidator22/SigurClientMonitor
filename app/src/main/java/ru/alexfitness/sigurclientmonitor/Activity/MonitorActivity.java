@@ -141,7 +141,7 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
         startMonitoring();
     }
 
-    //
+    //interface implementation
     //SigurClientConnectionHandler
 
     @Override
