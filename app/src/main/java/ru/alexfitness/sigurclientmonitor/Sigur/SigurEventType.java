@@ -7,7 +7,8 @@ public enum SigurEventType implements Serializable{
     FAIL_FACE_SCAN("67", "Доступ запрещен. Лицо не опознано"),
     FAIL_WRONG_CODE("10", "Доступ запрещен. Неизвестный код пропуска"),
     FAIL_EXPIRED("15", "Доступ запрещен. Срок действия ключа истек"),
-    FAIL_TIME_LIMIT("13", "Доступ запрещен. Нет допуска в это время");
+    FAIL_TIME_LIMIT("13", "Доступ запрещен. Нет допуска в это время"),
+    UNKNOWN("","");
 
     private final String code;
     private final String description;
@@ -24,7 +25,7 @@ public enum SigurEventType implements Serializable{
                 return sigurEventType;
             }
         }
-        return null;
+        return UNKNOWN;
     }
 
     @Override

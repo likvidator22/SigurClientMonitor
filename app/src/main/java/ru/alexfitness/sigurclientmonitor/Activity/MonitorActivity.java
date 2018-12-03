@@ -3,26 +3,32 @@ package ru.alexfitness.sigurclientmonitor.Activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.io.FileNotFoundException;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import ru.alexfitness.sigurclientmonitor.Connection.SigurClientConnectionHandler;
 import ru.alexfitness.sigurclientmonitor.Connection.SigurClientConnectionTask;
+import ru.alexfitness.sigurclientmonitor.Db.SigurMonitorDAO;
 import ru.alexfitness.sigurclientmonitor.R;
 import ru.alexfitness.sigurclientmonitor.Sigur.SigurEvent;
+import ru.alexfitness.sigurclientmonitor.Sigur.SigurEventType;
 import ru.alexfitness.sigurclientmonitor.util.MessageBuilder;
 import ru.alexfitness.sigurclientmonitor.util.SyncTask;
 import ru.alexfitness.sigurclientmonitor.util.SyncTaskListener;
@@ -30,6 +36,8 @@ import ru.alexfitness.sigurclientmonitor.util.SyncTaskListener;
 public class MonitorActivity extends Activity implements SigurClientConnectionHandler, SyncTaskListener, TextToSpeech.OnInitListener {
 
     private TextView messageTextView;
+    private ImageView photoView;
+
     private ProgressBar progressBar;
     private Timer timer;
     private SharedPreferences preferences;
@@ -47,6 +55,7 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    photoView.setVisibility(View.GONE);
                     messageTextView.setText(preferences.getString(getString(R.string.waiting_message_pref), ""));
                 }
             });
@@ -67,7 +76,10 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         messageBuilder = new MessageBuilder(this);
+
         messageTextView = findViewById(R.id.messageTextView);
+        photoView = findViewById(R.id.photoImageView);
+        photoView.setVisibility(View.GONE);
         progressBar = findViewById(R.id.monitorProgressBar);
         progressBar.setVisibility(View.INVISIBLE);
 
@@ -146,6 +158,16 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
 
     @Override
     public void handleNewEvent(SigurEvent sigurEvent) {
+
+        if(sigurEvent.getEventType().equals(SigurEventType.SUCCESS_ENTER)){
+            photoView.setVisibility(View.VISIBLE);
+            setImageForEvent(sigurEvent);
+        } else if(sigurEvent.getEventType().equals(SigurEventType.UNKNOWN)) {
+            return;
+        } else {
+            photoView.setVisibility(View.GONE);
+        }
+
         setMessageTextForEvent(sigurEvent);
         updateTimer();
     }
@@ -202,6 +224,18 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
                 speakParam.putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 1);
                 textToSpeech.speak(messageText, TextToSpeech.QUEUE_FLUSH, speakParam, null);
             }
+        }
+    }
+
+    private void setImageForEvent(SigurEvent event){
+        try {
+            Bitmap bm = SigurMonitorDAO.getPhotoData(this, event.getObjectID());
+            photoView.setImageBitmap(bm);
+        } catch (FileNotFoundException e) {
+            Log.e(null, e.getMessage());
+            photoView.setImageBitmap(null);
+            Toast.makeText(this, "Loading photo error", Toast.LENGTH_SHORT).show();
+            return;
         }
     }
 

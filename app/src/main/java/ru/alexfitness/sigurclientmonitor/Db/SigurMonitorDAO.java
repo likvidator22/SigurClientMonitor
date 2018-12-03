@@ -3,6 +3,12 @@ package ru.alexfitness.sigurclientmonitor.Db;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Image;
+
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 
 public class SigurMonitorDAO {
 
@@ -30,6 +36,12 @@ public class SigurMonitorDAO {
             }
         }
         return result;
+    }
+
+    public static Bitmap getPhotoData(Context context, int id) throws FileNotFoundException {
+        FileInputStream fis = context.openFileInput(String.format("%d", id));
+        Bitmap bm = BitmapFactory.decodeStream(fis);
+        return bm;
     }
 
 }

@@ -6,6 +6,14 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
+import android.support.annotation.NonNull;
+
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.sql.Blob;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -76,8 +84,16 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
 
             String name, tabid;
             int objectid;
+            long ts, photots;
 
-            rs = stmt.executeQuery("SELECT id, name, TABID FROM personal");
+
+            //rs = stmt.executeQuery("SELECT id, name, TABID FROM personal");
+
+            rs = stmt.executeQuery("SELECT PS.ID, PS.NAME, PS.TABID, PH.TS AS TS, PH.PREVIEW_RASTER " +
+                    "FROM personal AS PS " +
+                    "       LEFT JOIN photo AS PH " +
+                    "ON PS.id = PH.id " +
+                    "WHERE STATUS = 'AVAILABLE'");
 
             while(rs.next()){
                 if(isCancelled()){
@@ -86,9 +102,17 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
                 objectid = rs.getInt(1);
                 name = rs.getString(2);
                 tabid = rs.getString(3);
-                cursor = db.rawQuery("SELECT SIGUR_ID, NAME, SURNAME, FATHERNAME, TABID FROM VISITORS WHERE SIGUR_ID = ?", new String[]{String.valueOf(objectid)});
+                ts = rs.getLong(4);
+
+                cursor = db.rawQuery("SELECT SIGUR_ID, NAME, SURNAME, FATHERNAME, TABID, PHOTO_TS FROM VISITORS WHERE SIGUR_ID = ?", new String[]{String.valueOf(objectid)});
                 if(cursor.moveToNext()){
-                    //check name?
+                    photots = cursor.getLong(cursor.getColumnIndex("PHOTO_TS"));
+                    if(photots != ts){
+                        Blob photoBlob = rs.getBlob(5);
+                        if(photoBlob!=null) {
+                            savePhoto(photoBlob, objectid);
+                        }
+                    }
                 } else {
                     String[] nameSplit = name.split(" ");
                     if(nameSplit.length == 3) {
@@ -98,7 +122,12 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
                         contentValues.put("FATHERNAME", nameSplit[2]);
                         contentValues.put("SIGUR_ID", objectid);
                         contentValues.put("TABID", tabid);
+                        contentValues.put("PHOTO_TS", ts);
                         db.insert("VISITORS", null, contentValues);
+                        Blob photoBlob = rs.getBlob(5);
+                        if(photoBlob!=null) {
+                            savePhoto(photoBlob, objectid);
+                        }
                     }
                 }
                 cursor.close();
@@ -164,4 +193,14 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
     public void setListener(SyncTaskListener listener) {
         this.listener = listener;
     }
+
+    private void savePhoto(@NonNull Blob photoBlob, int objectid) throws IOException, SQLException {
+        //Blob photoBlob = rs.getBlob(5);
+        byte[] photoBytes = photoBlob.getBytes(1, (int) photoBlob.length());
+        String fileName = String.format("%d", objectid);
+        FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_PRIVATE);
+        fos.write(photoBytes);
+        fos.close();
+    }
+
 }

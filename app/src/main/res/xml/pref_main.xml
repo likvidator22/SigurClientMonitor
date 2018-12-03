@@ -16,7 +16,7 @@
 
         <EditTextPreference
             android:key="connection_timeout_pref"
-            android:defaultValue="10000"
+            android:defaultValue="30"
             android:singleLine="true"
             android:title="@string/connection_timeout_pref_title"></EditTextPreference>
 
