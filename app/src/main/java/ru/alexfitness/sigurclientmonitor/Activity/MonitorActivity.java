@@ -234,7 +234,7 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
         } catch (FileNotFoundException e) {
             Log.e(null, e.getMessage());
             photoView.setImageBitmap(null);
-            Toast.makeText(this, "Loading photo error", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.photoError, Toast.LENGTH_SHORT).show();
             return;
         }
     }

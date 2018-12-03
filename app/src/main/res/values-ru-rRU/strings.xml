@@ -50,4 +50,5 @@
     <string name="connection_category_pref_summary">настройки подключения: адрес сервер, порт и т.д.</string>
     <string name="enable_voice_pref_title">Озвучить сообщения</string>
     <string name="connecting_toast">Подключение...</string>
+    <string name="photoError">Ошибка загрузки фото</string>
 </resources>

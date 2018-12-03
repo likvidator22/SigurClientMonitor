@@ -51,5 +51,6 @@
     <string name="sync_failed_text">Sync failed</string>
     <string name="connection_category_pref_summary">connection setting: host, port etc...</string>
     <string name="connecting_toast">Connection...</string>
+    <string name="photoError">Read photo error</string>
 
 </resources>
