@@ -7,12 +7,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.sql.Blob;
 
 import java.sql.Connection;
@@ -20,6 +18,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.Properties;
 
 import ru.alexfitness.sigurclientmonitor.Db.SigurDbHelper;
@@ -77,7 +76,7 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
             int syncSize;
             int syncProgress = 0;
 
-            rs = stmt.executeQuery("SELECT COUNT(id) FROM personal");
+            rs = stmt.executeQuery("SELECT COUNT(id) FROM personal WHERE STATUS = 'AVAILABLE'");
             rs.next();
             syncSize = rs.getInt(1);
             rs.close();
@@ -85,15 +84,22 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
             String name, tabid;
             int objectid;
             long ts, photots;
+            Blob photoBlob;
 
+            ArrayList<Integer> objectsToLoadPhoto = new ArrayList<>();
 
-            //rs = stmt.executeQuery("SELECT id, name, TABID FROM personal");
-
-            rs = stmt.executeQuery("SELECT PS.ID, PS.NAME, PS.TABID, PH.TS AS TS, PH.PREVIEW_RASTER " +
+            /*rs = stmt.executeQuery("SELECT PS.ID, PS.NAME, PS.TABID, PH.TS AS TS, PH.PREVIEW_RASTER " +
+                    "FROM personal AS PS " +
+                    "       LEFT JOIN photo AS PH " +
+                    "ON PS.id = PH.id " +
+                    "WHERE STATUS = 'AVAILABLE'");*/
+            rs = stmt.executeQuery("SELECT PS.ID, PS.NAME, PS.TABID, PH.TS AS TS " +
                     "FROM personal AS PS " +
                     "       LEFT JOIN photo AS PH " +
                     "ON PS.id = PH.id " +
                     "WHERE STATUS = 'AVAILABLE'");
+
+            db.beginTransaction();
 
             while(rs.next()){
                 if(isCancelled()){
@@ -108,10 +114,12 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
                 if(cursor.moveToNext()){
                     photots = cursor.getLong(cursor.getColumnIndex("PHOTO_TS"));
                     if(photots != ts){
-                        Blob photoBlob = rs.getBlob(5);
+                        /*Blob photoBlob = rs.getBlob(5);
                         if(photoBlob!=null) {
                             savePhoto(photoBlob, objectid);
-                        }
+                        }*/
+                        objectsToLoadPhoto.add(objectid);
+                        db.execSQL("UPDATE VISITORS SET PHOTO_TS = " + String.valueOf(ts) + " WHERE SIGUR_ID = " + String.valueOf(objectid));
                     }
                 } else {
                     String[] nameSplit = name.split(" ");
@@ -124,20 +132,50 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
                         contentValues.put("TABID", tabid);
                         contentValues.put("PHOTO_TS", ts);
                         db.insert("VISITORS", null, contentValues);
-                        Blob photoBlob = rs.getBlob(5);
+                        /*Blob photoBlob = rs.getBlob(5);
                         if(photoBlob!=null) {
                             savePhoto(photoBlob, objectid);
-                        }
+                        }*/
+                        objectsToLoadPhoto.add(objectid);
                     }
                 }
                 cursor.close();
                 syncProgress++;
                 publishProgress((syncProgress  * 100)/syncSize);
             }
+
+            // LOADING PHOTO
+            syncSize = objectsToLoadPhoto.size();
+            if(syncSize > 0) {
+                syncProgress = 0;
+                publishProgress((syncProgress * 100) / syncSize);
+
+                rs = stmt.executeQuery("SELECT ID, PREVIEW_RASTER " +
+                        "FROM photo " +
+                        "WHERE ID in (" + TextUtils.join(",", objectsToLoadPhoto) + ")");
+                while (rs.next()) {
+                    if (isCancelled()) {
+                        return false;
+                    }
+                    objectid = rs.getInt(1);
+                    photoBlob = rs.getBlob(2);
+
+                    if (photoBlob != null) {
+                        savePhoto(photoBlob, objectid);
+                    }
+
+                    syncProgress++;
+                    publishProgress((syncProgress * 100) / syncSize);
+                }
+            }
+            db.setTransactionSuccessful();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
+            if(db!=null && db.inTransaction()){
+                db.endTransaction();
+            }
             if(cursor!=null){
                 cursor.close();
             }
