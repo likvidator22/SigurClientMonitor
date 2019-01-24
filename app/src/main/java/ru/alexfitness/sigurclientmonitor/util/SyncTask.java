@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -28,6 +29,8 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
     private SharedPreferences preferences;
     private Context context;
     private SyncTaskListener listener;
+
+    private static final int PHOTO_LOAD_PORTION = 10;
 
     public SyncTask(SharedPreferences prefs, Context context){
         this.preferences = prefs;
@@ -150,22 +153,28 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
                 syncProgress = 0;
                 publishProgress((syncProgress * 100) / syncSize);
 
-                rs = stmt.executeQuery("SELECT ID, PREVIEW_RASTER " +
-                        "FROM photo " +
-                        "WHERE ID in (" + TextUtils.join(",", objectsToLoadPhoto) + ")");
-                while (rs.next()) {
-                    if (isCancelled()) {
-                        return false;
-                    }
-                    objectid = rs.getInt(1);
-                    photoBlob = rs.getBlob(2);
+                while(syncSize > syncProgress) {
+                    //Log.i("TESTING", String.valueOf(syncSize) + " - " + String.valueOf(syncProgress));
+                    String idStr;
+                    int localMax = syncSize < (PHOTO_LOAD_PORTION + syncProgress) ? syncSize : (PHOTO_LOAD_PORTION + syncProgress);
+                    idStr = TextUtils.join(",", objectsToLoadPhoto.subList(syncProgress, localMax));
+                    rs = stmt.executeQuery("SELECT ID, PREVIEW_RASTER " +
+                            "FROM photo " +
+                            "WHERE ID in (" + idStr + ")");
+                    while (rs.next()) {
+                        if (isCancelled()) {
+                            return false;
+                        }
+                        objectid = rs.getInt(1);
+                        photoBlob = rs.getBlob(2);
 
-                    if (photoBlob != null) {
-                        savePhoto(photoBlob, objectid);
-                    }
+                        if (photoBlob != null) {
+                            savePhoto(photoBlob, objectid);
+                        }
 
-                    syncProgress++;
-                    publishProgress((syncProgress * 100) / syncSize);
+                        syncProgress++;
+                        publishProgress((syncProgress * 100) / syncSize);
+                    }
                 }
             }
             db.setTransactionSuccessful();
