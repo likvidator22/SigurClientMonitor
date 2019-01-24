@@ -68,7 +68,7 @@ public class SigurClientConnectionTask extends AsyncTask<Void, String, Void> {
         isRunning.set(true);
 
         String response;
-        while (isRunning.get()) {
+        while (isRunning.get() && !isCancelled()) {
             try {
                 response = reader.readLine();
             } catch (IOException e) {
