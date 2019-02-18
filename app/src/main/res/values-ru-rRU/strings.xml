@@ -15,7 +15,7 @@
     <string name="remove_settings_message">Сбросить все настройки?</string>
     <string name="remove_settings_result_ok">Все настройки удалены</string>
 
-    <string name="app_name" translatable="false">Монитор системы контроля доступа Sigur</string>
+    <string name="app_name">Монитор системы контроля доступа Sigur</string>
 
     <string name="port_pref_title">Порт</string>
     <string name="host_pref_title">Сервер</string>

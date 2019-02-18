@@ -8,7 +8,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Log;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Locale;
 import java.util.Properties;
 
 import ru.alexfitness.sigurclientmonitor.Db.SigurDbHelper;
@@ -63,17 +63,15 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
             SigurDbHelper dbHelper = new SigurDbHelper(context);
             db = dbHelper.getReadableDatabase();
 
-            StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.append("jdbc:mysql://");
-            stringBuilder.append(preferences.getString("host_pref", "")).append(":3305").append("/");
-            stringBuilder.append(preferences.getString("db_name_pref", ""));
-
             DriverManager.setLoginTimeout(60);
             Properties connectionProperties = new Properties();
             connectionProperties.put("connectTimeout", "10000");
             connectionProperties.put("user", "root");
             connectionProperties.put("password", "");
-            mysqlconnection = DriverManager.getConnection(stringBuilder.toString(), connectionProperties);
+            String stringBuilder = "jdbc:mysql://" +
+                    preferences.getString("host_pref", "") + ":3305" + "/" +
+                    preferences.getString("db_name_pref", "");
+            mysqlconnection = DriverManager.getConnection(stringBuilder, connectionProperties);
             stmt = mysqlconnection.createStatement();
 
             int syncSize;
@@ -244,7 +242,7 @@ public class SyncTask extends AsyncTask<Void, Integer, Boolean> {
     private void savePhoto(@NonNull Blob photoBlob, int objectid) throws IOException, SQLException {
         //Blob photoBlob = rs.getBlob(5);
         byte[] photoBytes = photoBlob.getBytes(1, (int) photoBlob.length());
-        String fileName = String.format("%d", objectid);
+        String fileName = String.format(Locale.getDefault() ,"%d", objectid);
         FileOutputStream fos = context.openFileOutput(fileName, Context.MODE_PRIVATE);
         fos.write(photoBytes);
         fos.close();

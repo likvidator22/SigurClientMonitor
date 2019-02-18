@@ -94,6 +94,7 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
             syncTask.setListener(this);
             ConnectivityManager conMgr = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
 
+            assert conMgr != null;
             NetworkInfo networkInfo = conMgr.getActiveNetworkInfo();
             if (networkInfo != null && networkInfo.isConnected()) {
                 messageTextView.setText(R.string.sync_in_progress_text);
@@ -235,7 +236,6 @@ public class MonitorActivity extends Activity implements SigurClientConnectionHa
             Log.e(null, e.getMessage());
             photoView.setImageBitmap(null);
             Toast.makeText(this, R.string.photoError, Toast.LENGTH_SHORT).show();
-            return;
         }
     }
 

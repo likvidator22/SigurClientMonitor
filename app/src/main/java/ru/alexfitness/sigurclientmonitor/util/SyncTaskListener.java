@@ -2,9 +2,9 @@ package ru.alexfitness.sigurclientmonitor.util;
 
 public interface SyncTaskListener {
 
-    public void handleProgress(int percent);
-    public void onSyncStart();
-    public void onSyncFailed();
-    public void onFinishAction();
+    void handleProgress(int percent);
+    void onSyncStart();
+    void onSyncFailed();
+    void onFinishAction();
 
 }

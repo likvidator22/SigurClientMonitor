@@ -5,10 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Locale;
 
 public class SigurMonitorDAO {
 
@@ -21,9 +21,7 @@ public class SigurMonitorDAO {
             db = dbHelper.getReadableDatabase();
             cursor = db.rawQuery("SELECT NAME, FATHERNAME FROM VISITORS WHERE SIGUR_ID = ?", new String[]{String.valueOf(id)});
             if (cursor.moveToNext()) {
-                StringBuilder sb = new StringBuilder();
-                sb.append(cursor.getString(0)).append(" ").append(cursor.getString(1));
-                result = sb.toString();
+                result = cursor.getString(0) + " " + cursor.getString(1);
             }
         } catch(Exception ex){
             ex.printStackTrace();
@@ -39,9 +37,8 @@ public class SigurMonitorDAO {
     }
 
     public static Bitmap getPhotoData(Context context, int id) throws FileNotFoundException {
-        FileInputStream fis = context.openFileInput(String.format("%d", id));
-        Bitmap bm = BitmapFactory.decodeStream(fis);
-        return bm;
+        FileInputStream fis = context.openFileInput(String.format(Locale.getDefault(),"%d", id));
+        return BitmapFactory.decodeStream(fis);
     }
 
 }

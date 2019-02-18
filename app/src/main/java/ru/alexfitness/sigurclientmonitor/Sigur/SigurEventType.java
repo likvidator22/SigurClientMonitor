@@ -18,7 +18,7 @@ public enum SigurEventType implements Serializable{
         this.description = description;
     }
 
-    public static final SigurEventType getByCode(String code){
+    public static SigurEventType getByCode(String code){
         SigurEventType[] allEvents = SigurEventType.values();
         for(SigurEventType sigurEventType:allEvents){
             if(sigurEventType.code.equals(code)){

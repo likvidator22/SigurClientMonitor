@@ -34,7 +34,7 @@ public class DefaultMessagesManager {
         return result;
     }
 
-    public static final void setDefaultMessages(Context context){
+    public static void setDefaultMessages(Context context){
 
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         SigurEventType[] types = SigurEventType.values();
@@ -44,7 +44,7 @@ public class DefaultMessagesManager {
                 String defaultMessage = getDefaultSigurEventMessageText(context, type);
                 if(defaultMessage!=null){
                     editor.putString(type.name(),defaultMessage);
-                    editor.commit();
+                    editor.apply();
                 }
             }
         }

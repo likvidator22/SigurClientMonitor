@@ -24,9 +24,7 @@ public class SigurEvent {
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("\"yyyy-MM-dd HH:mm:ss\"", Locale.ENGLISH);
         try {
-            StringBuilder sb = new StringBuilder();
-            sb.append(stringSplit[1]).append(" ").append(stringSplit[2]);
-            setDate(dateFormat.parse(sb.toString()));
+            setDate(dateFormat.parse(stringSplit[1] + " " + stringSplit[2]));
         } catch (ParseException e) {
             //
         }
@@ -43,9 +41,7 @@ public class SigurEvent {
                 setKey(null);
                 break;
             case "W26":
-                StringBuilder sb = new StringBuilder();
-                sb.append(stringSplit[8]).append(",").append(stringSplit[9]);
-                setKey(sb.toString());
+                setKey(stringSplit[8] + "," + stringSplit[9]);
                 break;
             default:
                 setKey(null);

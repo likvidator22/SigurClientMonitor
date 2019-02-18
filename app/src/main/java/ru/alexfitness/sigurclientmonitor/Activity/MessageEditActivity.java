@@ -44,7 +44,7 @@ public class MessageEditActivity extends Activity {
     public void saveMessage(View view) {
         SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(this).edit();
         editor.putString(preference_name, editText.getText().toString());
-        editor.commit();
+        editor.apply();
         finish();
     }
 

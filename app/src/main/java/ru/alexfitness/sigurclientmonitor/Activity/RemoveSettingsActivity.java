@@ -37,7 +37,7 @@ public class RemoveSettingsActivity extends Activity {
 
         //clear preferences
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        preferences.edit().clear().commit();
+        preferences.edit().clear().apply();
         PreferenceManager.setDefaultValues(this, R.xml.pref_main, false);
 
         DefaultMessagesManager.setDefaultMessages(this);
